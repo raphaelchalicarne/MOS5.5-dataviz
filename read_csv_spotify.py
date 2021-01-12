@@ -12,11 +12,9 @@ import time
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import os
+import spotify_client #Contient les ID client de Spotify
 
-# Set environment variables
-# os.environ['SPOTIPY_CLIENT_ID'] = 'app_spotify_client_id'
-# os.environ['SPOTIPY_CLIENT_SECRET'] = 'app_spotify_client_secret'
-
+#%%
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 
 
@@ -26,34 +24,39 @@ def get_artists(track_data):
     return ";".join(artist_list)
 
 
-# country_list = ['france', 'bresil', 'allemagne', 'royaume-uni', 'espagne', 'italie', 'chili', 'colombie',
-#                 'suisse', 'bolivie', 'autriche', 'belgique', 'equateur', 'danemark', 'republique_tcheque', 'paraguay']
+country_list = np.array(['france', 'bresil', 'allemagne', 'royaume-uni', 'espagne', 'italie', 'chili', 'colombie',
+                         'suisse', 'bolivie', 'autriche', 'belgique', 'equateur', 'danemark', 'republique_tcheque', 'paraguay'])
+country_unique_tracks = np.array([])
 
-country_list = ['france', 'bresil', 'allemagne', 'royaume-uni', 'espagne', 'italie', 'chili', 'colombie',
-                'suisse', 'bolivie', 'autriche', 'belgique', 'equateur', 'danemark', 'republique_tcheque', 'paraguay']
 
 t0 = time.time()
-for country in country_list:
+for i_country, country in enumerate(country_list):
     csv_array = np.loadtxt(
         'top_' + country + '_200_spotify.csv', delimiter=",", dtype=object)
-    spotify_dict = {}
-    for position_i in range(1, 201):
-        for date_j in range(1, 367):
-            track_id = csv_array[position_i, date_j]
-            if (spotify_dict.get(track_id) == None) & (track_id != ''):
-                track_af = sp.audio_features(track_id)[0]
-                if track_af != None:
-                    spotify_dict[track_id] = track_af
+    country_unique_tracks = np.concatenate(
+        (country_unique_tracks, np.unique(csv_array[1:, 1:])))
+unique_tracks_list = np.unique(country_unique_tracks)
+unique_tracks_list = unique_tracks_list[1:]
+print("Temps de calcul unique_tracks_list :",
+      "{0:.2f}".format(time.time()-t0), "secondes")
 
-                    track_data = sp.track(track_id)
-                    track_name = track_data['name']
-                    track_artists = get_artists(track_data)
+t1 = time.time()
+spotify_dict = {}
+for track_id in unique_tracks_list:
+        if (spotify_dict.get(track_id) == None) & (track_id != ''):
+            track_af = sp.audio_features(track_id)[0]
+            if track_af != None:
+                spotify_dict[track_id] = track_af
 
-                    spotify_dict[track_id]['name'] = track_name
-                    spotify_dict[track_id]['artists'] = track_artists
+                track_data = sp.track(track_id)
+                track_name = track_data['name']
+                track_artists = get_artists(track_data)
+
+                spotify_dict[track_id]['name'] = track_name
+                spotify_dict[track_id]['artists'] = track_artists
 
 print("Temps de calcul spotify_dict :",
-      "{0:.2f}".format(time.time()-t0), "secondes")
+      "{0:.2f}".format(time.time()-t1), "secondes")
 
 with open('top_200_af_spotify.csv', mode='w', newline='') as csv_spotify_af:
     fieldnames = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness',
@@ -71,3 +74,9 @@ with open('top_200_af_spotify.csv', mode='w', newline='') as csv_spotify_af:
 bo_track_id = '717QGTmZdkemDaCo1vQHG0'
 bo_track_data = sp.track(bo_track_id)
 get_artists(bo_track_data)
+
+# %%
+country = 'paraguay'
+csv_array = np.loadtxt(
+    'top_' + country + '_200_spotify.csv', delimiter=",", dtype=object)
+tracks = np.unique(csv_array[1:, 1:])
