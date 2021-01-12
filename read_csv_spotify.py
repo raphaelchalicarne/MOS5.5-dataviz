@@ -8,6 +8,7 @@ Created on Tue Jan 12 08:59:20 2021
 # %% Imports
 import csv
 import numpy as np
+import time
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import os
@@ -25,28 +26,34 @@ def get_artists(track_data):
     return ";".join(artist_list)
 
 
+# country_list = ['france', 'bresil', 'allemagne', 'royaume-uni', 'espagne', 'italie', 'chili', 'colombie',
+#                 'suisse', 'bolivie', 'autriche', 'belgique', 'equateur', 'danemark', 'republique_tcheque', 'paraguay']
+
 country_list = ['france', 'bresil', 'allemagne', 'royaume-uni', 'espagne', 'italie', 'chili', 'colombie',
                 'suisse', 'bolivie', 'autriche', 'belgique', 'equateur', 'danemark', 'republique_tcheque', 'paraguay']
 
-country = 'france'
-# for country in country_list:
-csv_array = np.loadtxt(
-    'top_' + country + '_200_spotify.csv', delimiter=",", dtype=object)
-spotify_dict = {}
-for position_i in range(1, 201):
-    for date_j in range(1, 367):
-        track_id = csv_array[position_i, date_j]
-        if (spotify_dict.get(track_id) == None):
-            track_af = sp.audio_features(track_id)[0]
-            if track_af != None:
-                spotify_dict[track_id] = track_af
-                
-                track_data = sp.track(track_id)
-                track_name = track_data['name']
-                track_artists = get_artists(track_data)
-    
-                spotify_dict[track_id]['name'] = track_name
-                spotify_dict[track_id]['artists'] = track_artists
+t0 = time.time()
+for country in country_list:
+    csv_array = np.loadtxt(
+        'top_' + country + '_200_spotify.csv', delimiter=",", dtype=object)
+    spotify_dict = {}
+    for position_i in range(1, 201):
+        for date_j in range(1, 367):
+            track_id = csv_array[position_i, date_j]
+            if (spotify_dict.get(track_id) == None) & (track_id != ''):
+                track_af = sp.audio_features(track_id)[0]
+                if track_af != None:
+                    spotify_dict[track_id] = track_af
+
+                    track_data = sp.track(track_id)
+                    track_name = track_data['name']
+                    track_artists = get_artists(track_data)
+
+                    spotify_dict[track_id]['name'] = track_name
+                    spotify_dict[track_id]['artists'] = track_artists
+
+print("Temps de calcul spotify_dict :",
+      "{0:.2f}".format(time.time()-t0), "secondes")
 
 with open('top_200_af_spotify.csv', mode='w', newline='') as csv_spotify_af:
     fieldnames = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness',
