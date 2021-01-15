@@ -32,7 +32,7 @@ country_unique_tracks = np.array([])
 t0 = time.time()
 for i_country, country in enumerate(country_list):
     csv_array = np.loadtxt(
-        'top_' + country + '_200_spotify.csv', delimiter=",", dtype=object)
+        'top_' + country + '_200_spotify.csv', delimiter=";", dtype=object)
     country_unique_tracks = np.concatenate(
         (country_unique_tracks, np.unique(csv_array[1:, 1:])))
 unique_tracks_list = np.unique(country_unique_tracks)
@@ -62,7 +62,7 @@ with open('top_200_af_spotify.csv', mode='w', newline='') as csv_spotify_af:
     fieldnames = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness', 'instrumentalness', 'liveness',
                   'valence', 'tempo', 'type', 'id', 'uri', 'track_href', 'analysis_url', 'duration_ms', 'time_signature', 'name', 'artists']
     writer = csv.DictWriter(csv_spotify_af, fieldnames=fieldnames,
-                            delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                            delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
     writer.writeheader()
     for track_af in spotify_dict.values():
@@ -78,5 +78,5 @@ get_artists(bo_track_data)
 # %%
 country = 'paraguay'
 csv_array = np.loadtxt(
-    'top_' + country + '_200_spotify.csv', delimiter=",", dtype=object)
+    'top_' + country + '_200_spotify.csv', delimiter=";", dtype=object)
 tracks = np.unique(csv_array[1:, 1:])
