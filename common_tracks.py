@@ -14,7 +14,7 @@ import os
 
 # %%
 country_list = ["france", "belgique", "suisse", "autriche", "allemagne", "danemark", "republique_tcheque",
-                "royaume-uni", "italie", "espagne", "argentine", "bolivie", "bresil", "chili", "colombie", "equateur", "paraguay"]
+                "royaume-uni", "italie", "portugal", "espagne", "bresil", "argentine", "bolivie", "chili", "colombie", "equateur", "paraguay"]
 nb_countries = len(country_list)
 
 # Load top 200 of each country
